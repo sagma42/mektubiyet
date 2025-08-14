@@ -22,3 +22,9 @@ button h3 {
   padding: 0;
   text-align: center;
 }
+
+.passChange {
+  width: 300px;
+  margin: 0 auto;  /* yatay ortalama */
+  bottom: 30px;
+}

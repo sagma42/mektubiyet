@@ -49,6 +49,29 @@ app.post("/login", (req, res) => {
   });
 });
 
+// Kullanıcının giriş yapmış olması gerekiyor
+function isAuthenticated(req, res, next) {
+  if (req.session.user) return next();
+  res.status(401).json({ error: "Giriş yapılmamış" });
+}
+
+app.post("/change-password", isAuthenticated, (req, res) => {
+  const { newPassword } = req.body;
+  if (!newPassword) return res.status(400).json({ error: "Yeni şifre gerekli" });
+
+  const hash = bcrypt.hashSync(newPassword, 10);
+
+  db.run(
+    `UPDATE users SET password = ? WHERE username = ?`,
+    [hash, req.session.user],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true });
+    }
+  );
+});
+
+
 app.post("/logout", (req, res) => {
   req.session.destroy(err => {
     if (err) return res.status(500).json({ error: "Session silinemedi" });

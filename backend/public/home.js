@@ -62,3 +62,20 @@ async function logout() {
     alert("Sunucu hatası!");
   }
 }
+
+document.getElementById("changePasswordBtn").addEventListener("click", () => {
+  const newPassword = prompt("Yeni şifrenizi girin:");
+  if (!newPassword) return alert("Şifre boş olamaz");
+
+  fetch("/change-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ newPassword }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) alert("Şifre başarıyla değiştirildi!");
+      else alert("Hata: " + data.error);
+    })
+    .catch(err => alert("Sunucu hatası: " + err));
+});

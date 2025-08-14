@@ -11,6 +11,6 @@ H1{
 .tus{
     position: relative;
     width: 300px;
-    height: 40px;
-    left: 37%;
+    margin: 0 auto;
+    left: 450px;
 }
