@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mektubiyet – Anasayfa</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h2>Mektup Gönder</h2>
+      <textarea id="content" rows="6" placeholder="Mektup içeriği..."></textarea>
+      <button onclick="sendLetter()">Gönder</button>
+      <p class="small" id="sendMsg"></p>
+    </div>
+
+    <div class="card">
+      <button onclick="location.href='myLetters.html'">Benim Mektuplarım</button>
+    </div>
+
+    <div class="card">
+      <button onclick="location.href='all.html'">Tüm Mektuplar</button>
+    </div>
+
+    <div class="card">
+      <button onclick="logout()">Çıkış Yap</button>
+    </div>
+  </div>
+
+  <script>
+    function sendLetter() {
+      const content = document.getElementById('content').value.trim();
+      if (!content) {
+        document.getElementById('sendMsg').innerText = "Mektup boş olamaz!";
+        return;
+      }
+
+      // Backend tarafında giriş yapan kullanıcıya göre otomatik alıcı belirlenecek
+      fetch('/sendLetter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: content })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('sendMsg').innerText = data.message || "Mektup gönderildi.";
+        document.getElementById('content').value = '';
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('sendMsg').innerText = "Hata oluştu!";
+      });
+    }
+  </script>
+
+  <script src="/home.js"></script>
+</body>
+</html>

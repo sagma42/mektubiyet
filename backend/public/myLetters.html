@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mektubiyet – Mektuplarım</title>
+  <link rel="stylesheet" href="/style.css"/>
+  <style>
+    .item { padding: 8px; border-bottom: 1px solid #ccc; margin-bottom: 8px; }
+    .small { font-size: 0.8em; color: #666; }
+    .card { padding: 8px; margin-bottom: 16px; border: 1px solid #ccc; border-radius: 6px; }
+    input { margin-right: 4px; }
+  </style>
+</head>
+<body style="padding: 8px;">
+
+  <div class="card">
+    <div style="margin-bottom: 8px;">
+      <input type="text" id="textFilter" placeholder="Mektup içeriğinde ara..." />
+      <input type="date" id="dateFilter" />
+      <button onclick="applyFilters()">Filtrele</button>
+      <button onclick="resetFilters()">Sıfırla</button>
+      <button style="position: relative; justify-content: center;" onclick="location.href='home.html'">Ana Menü</button>
+  </div>
+
+    </div>
+    <div id="myLetters"></div>
+  </div>
+
+  
+  <h3>Mektuplar silinemez ve düzenlenemez!</h3>
+
+<script>
+let myLettersData = [];
+
+// HTML escape fonksiyonu
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Server'dan mektupları çek
+async function getMyLetters() {
+  const box = document.getElementById("myLetters");
+  box.innerHTML = "";
+  try {
+    const res = await fetch("/letters/my");
+    const data = await res.json();
+    if (!Array.isArray(data)) {
+      box.textContent = data.error || "Mektup bulunamadı";
+      return;
+    }
+    myLettersData = data; // Global array
+    displayLetters(myLettersData);
+  } catch(e) {
+    box.textContent = "Yüklenemedi";
+    console.error(e);
+  }
+}
+
+// Mektupları ekrana bas
+function displayLetters(letters) {
+  const box = document.getElementById("myLetters");
+  box.innerHTML = letters.map(m => (
+    `<div class="item">
+      <div class="small">${new Date(m.date_sent).toLocaleString()}</div>
+      <div>${escapeHtml(m.content)}</div>
+    </div>`
+  )).join("");
+}
+
+// Filtreleme
+function applyFilters() {
+  const dateValue = document.getElementById('dateFilter').value;
+  const textValue = document.getElementById('textFilter').value.toLowerCase();
+
+  const filtered = myLettersData.filter(letter => {
+    const letterDate = new Date(letter.date_sent).toISOString().split('T')[0];
+    const matchesDate = dateValue ? letterDate === dateValue : true;
+    const matchesText = textValue ? letter.content.toLowerCase().includes(textValue) : true;
+    return matchesDate && matchesText;
+  });
+
+  displayLetters(filtered);
+}
+
+// Filtreleri sıfırla
+function resetFilters() {
+  document.getElementById('dateFilter').value = "";
+  document.getElementById('textFilter').value = "";
+  displayLetters(myLettersData);
+}
+
+// Sayfa açıldığında çalıştır
+getMyLetters();
+</script>
+</body>
+</html>

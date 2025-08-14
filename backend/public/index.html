@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mektup Sistemi – Giriş</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Giriş Yap</h1>
+      <div class="row">
+        <input id="username" placeholder="Kullanıcı adı" autocomplete="username"/>
+        <input id="password" type="password" placeholder="Şifre" autocomplete="current-password"/>
+      </div>
+      <button onclick="login()">Giriş</button>
+      <button onclick="forgotpassword()">Şifremi Unuttum (BCS)</button>
+      <p id="msg" class="small"></p>
+    </div>
+  </div>
+  <script src="/login.js"></script>
+</body>
+</html>

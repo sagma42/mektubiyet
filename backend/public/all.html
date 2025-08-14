@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mektubiyet – Tüm Mektuplar</title>
+  <link rel="stylesheet" href="/style.css"/>
+  <style>
+    .item { padding: 8px; border-bottom: 1px solid #ccc; margin-bottom: 8px; border-radius: 4px; background: #f9f9f9; }
+    .small { font-size: 0.8em; color: #666; }
+    input, select, button { margin-right: 4px; margin-bottom: 4px; }
+    .card { padding: 8px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 16px; }
+  </style>
+</head>
+<body style="padding: 8px;">
+  <div class="card">
+    <div style="margin-bottom: 8px;">
+      <select id="senderFilter">
+        <option value="">Tüm Gönderenler</option>
+        <option value="Zeynep">Zeynep</option>
+        <option value="Salih">Salih</option>
+      </select>
+      <input type="date" id="dateFilter" />
+      <input type="text" id="textFilter" placeholder="Mektup içeriğinde ara..." />
+      <button onclick="applyFilters()">Filtrele</button>
+      <button onclick="resetFilters()">Sıfırla</button>
+      <button style="position: relative; justify-content: center;" onclick="location.href='home.html'">Ana Menü</button>
+
+    </div>
+    <div id="allLetters"></div>
+  </div>
+
+<script>
+let allLettersData = [];
+
+// HTML escape
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Backend’den tüm mektupları çek
+async function getAllLetters() {
+  const box = document.getElementById("allLetters");
+  box.innerHTML = "";
+  try {
+    const res = await fetch("/letters/all", { credentials: "include" });
+    const data = await res.json();
+    allLettersData = data;
+    displayLetters(allLettersData);
+  } catch(e) {
+    box.textContent = "2026 - 16 Haziran Tarihinde Açılacak.";
+    console.error(e);
+  }
+}
+
+// Mektupları ekrana bas (en yeni en üstte)
+function displayLetters(letters) {
+  const box = document.getElementById("allLetters");
+  letters.sort((a,b) => new Date(b.date_sent) - new Date(a.date_sent));
+  box.innerHTML = letters.map(m => `
+    <div class="item">
+      <b>${escapeHtml(m.sender)}</b> → <b>${escapeHtml(m.receiver)}</b>
+      <div class="small">${new Date(m.date_sent).toLocaleString()}</div>
+      <div>${escapeHtml(m.content)}</div>
+    </div>
+  `).join("");
+}
+
+// Filtreleme
+function applyFilters() {
+  const sender = document.getElementById("senderFilter").value.toLowerCase();
+  const dateValue = document.getElementById("dateFilter").value;
+  const textValue = document.getElementById("textFilter").value.toLowerCase();
+
+  const filtered = allLettersData.filter(letter => {
+    const letterDate = new Date(letter.date_sent).toISOString().split("T")[0];
+    const matchSender = sender ? letter.sender.toLowerCase() === sender : true;
+    const matchDate = dateValue ? letterDate === dateValue : true;
+    const matchText = textValue ? letter.content.toLowerCase().includes(textValue) : true;
+    return matchSender && matchDate && matchText;
+  });
+
+  displayLetters(filtered);
+}
+
+// Filtreleri sıfırla
+function resetFilters() {
+  document.getElementById("senderFilter").value = "";
+  document.getElementById("dateFilter").value = "";
+  document.getElementById("textFilter").value = "";
+  displayLetters(allLettersData);
+}
+
+// Sayfa açılınca çalıştır
+getAllLetters();
+</script>
+</body>
+</html>
