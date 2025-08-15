@@ -1,5 +1,14 @@
 const express = require("express");
 const session = require("express-session");
+const SQLiteStore = require("connect-sqlite3")(session);
+
+app.use(session({
+    store: new SQLiteStore({ db: "sessions.sqlite", dir: "./data" }),
+    secret: "gizli-anahtar",
+    resave: false,
+    saveUninitialized: false
+}));
+
 const bodyParser = require("body-parser");
 const path = require("path");
 const bcrypt = require("bcryptjs");
